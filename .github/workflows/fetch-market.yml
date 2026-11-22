@@ -1,0 +1,42 @@
+name: Fetch market data
+
+on:
+  schedule:
+    # 每天 21:30 北京时间（工作日），GitHub Actions 使用 UTC
+    - cron: '30 13 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-market-data
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch quotes
+        run: npm run fetch:market
+
+      - name: Commit data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- data; then
+            echo "No data changes"
+            exit 0
+          fi
+          git add data
+          git commit -m "chore: update market data"
+          git push

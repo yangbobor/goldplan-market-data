@@ -1,0 +1,307 @@
+{
+  "generatedAt": "2026-11-22T03:49:01.681Z",
+  "items": [
+    {
+      "symbol": "001593",
+      "name": "天弘创业板ETF联接C",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 0.9003,
+      "changePct": -3.35,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "001595",
+      "name": "天弘中证银行ETF联接C",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 1.9673,
+      "changePct": 1.24,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "002611",
+      "name": "博时黄金ETF联接C",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 2.3963,
+      "changePct": -4.67,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "003095",
+      "name": "中欧医疗健康混合A",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 1.7348,
+      "changePct": -2.63,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "004010",
+      "name": "华泰柏瑞鼎利灵活配置混合A",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 1.5232,
+      "changePct": -0.31,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "005875",
+      "name": "易方达中盘成长混合",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 2.2512,
+      "changePct": -1.6,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "006327",
+      "name": "易方达中概互联网ETF联接(QDII)A(人民币份额)",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-19",
+      "price": 0.7029,
+      "changePct": -3.13,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "006479",
+      "name": "广发纳斯达克100ETF联接(QDII)C",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-19",
+      "price": 7.1092,
+      "changePct": -2.18,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "008088",
+      "name": "华夏房地产ETF联接A",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 0.4892,
+      "changePct": -4,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "009267",
+      "name": "广发双债添利债券E",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 1.2117,
+      "changePct": 0.02,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "009644",
+      "name": "东方阿尔法优势产业混合A",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 1.5411,
+      "changePct": -3.15,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "010770",
+      "name": "天弘中证农业主题ETF联接C",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 0.7129,
+      "changePct": -0.53,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "012414",
+      "name": "招商中证白酒指数C",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 0.5669,
+      "changePct": -1.6,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "013841",
+      "name": "银华集成电路混合C",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 2.1763,
+      "changePct": -3.72,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "015896",
+      "name": "天弘中证细分化工产业主题ETF联接A",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 0.7054,
+      "changePct": -2.82,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "018075",
+      "name": "长盛航天海工装备灵活配置混合C",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 1.0127,
+      "changePct": -7.11,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "018167",
+      "name": "国泰有色金属矿业ETF联接A",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 1.2567,
+      "changePct": -2.85,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "019005",
+      "name": "国投瑞银白银期货(LOF)C",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 1.1489,
+      "changePct": -4.29,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "019431",
+      "name": "永赢睿信混合A",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 1.6101,
+      "changePct": -2.45,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "020483",
+      "name": "中欧中证芯片产业指数C",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 2.272,
+      "changePct": -3.81,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "021200",
+      "name": "华夏中证装备产业ETF联接A",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 1.0286,
+      "changePct": -2.79,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "024689",
+      "name": "富国国证通用航空产业ETF联接C",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 0.7036,
+      "changePct": -5.28,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "159612",
+      "name": "标普500ETF国泰",
+      "instrument": "etf",
+      "market": "A股ETF",
+      "aliases": [
+        "ETF-SP500"
+      ],
+      "benchmark": false,
+      "date": "2026-11-20",
+      "price": 1.928,
+      "prevClose": 2.008,
+      "changePct": -3.98,
+      "source": "东方财富行情"
+    },
+    {
+      "symbol": "159766",
+      "name": "旅游ETF富国",
+      "instrument": "etf",
+      "market": "A股ETF",
+      "aliases": [
+        "ETF-TOUR"
+      ],
+      "benchmark": false,
+      "date": "2026-11-20",
+      "price": 0.519,
+      "prevClose": 0.533,
+      "changePct": -2.63,
+      "source": "东方财富行情"
+    },
+    {
+      "symbol": "161032",
+      "name": "富国中证煤炭指数(LOF)A",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 2.128,
+      "changePct": -0.42,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "166002",
+      "name": "中欧新蓝筹灵活配置混合A",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 2.5569,
+      "changePct": -1.53,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "217017",
+      "name": "招商上证消费80ETF联接A",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-20",
+      "price": 1.8488,
+      "changePct": -1.23,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "501312",
+      "name": "华宝海外科技股票(QDII-FOF-LOF)A",
+      "instrument": "otc-fund",
+      "market": "场外基金",
+      "date": "2026-11-19",
+      "price": 1.9942,
+      "changePct": -2.45,
+      "source": "天天基金（东方财富）"
+    },
+    {
+      "symbol": "510300",
+      "name": "沪深300ETF华泰柏瑞",
+      "instrument": "etf",
+      "market": "A股ETF",
+      "benchmark": true,
+      "date": "2026-11-20",
+      "price": 4.018,
+      "prevClose": 4.06,
+      "changePct": -1.03,
+      "source": "东方财富行情"
+    }
+  ]
+}

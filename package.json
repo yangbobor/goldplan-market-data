@@ -1,0 +1,12 @@
+{
+  "name": "goldplan-market-data",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "fetch:market": "node scripts/fetch-market.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
