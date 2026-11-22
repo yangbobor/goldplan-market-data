@@ -3,6 +3,7 @@
  * GoldPlan 行情抓取脚本。
  *
  * 只抓行情，不读取、也不写入任何持仓数量或金额：
+ * - 标的清单来自仓库根目录 symbols.json，加新标的只需改那里
  * - 场外基金：天天基金（东方财富）最近一期已公布净值
  * - 场内 ETF：东方财富实时/收盘行情
  *
@@ -20,6 +21,7 @@ import { fileURLToPath } from 'node:url'
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const DATA_DIR = join(ROOT, 'data')
 const HISTORY_DIR = join(DATA_DIR, 'history')
+const SYMBOL_FILE = join(ROOT, 'symbols.json')
 
 const TIMEOUT_MS = 20_000
 const ATTEMPTS = 3
@@ -28,64 +30,110 @@ const CONCURRENCY = 4
 const UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
 
-/** 场外基金：代码 + 名称（名称仅用于可读性，不含任何金额） */
-const OTC_FUNDS = [
-  ['019005', '国投瑞银白银期货(LOF)C'],
-  ['001595', '天弘中证银行ETF联接C'],
-  ['010770', '天弘中证农业主题ETF联接C'],
-  ['015896', '天弘中证细分化工产业主题ETF联接A'],
-  ['001593', '天弘创业板ETF联接C'],
-  ['006479', '广发纳斯达克100ETF联接(QDII)C'],
-  ['009267', '广发双债添利债券E'],
-  ['005875', '易方达中盘成长混合'],
-  ['006327', '易方达中概互联网ETF联接(QDII)A(人民币份额)'],
-  ['161032', '富国中证煤炭指数(LOF)A'],
-  ['024689', '富国国证通用航空产业ETF联接C'],
-  ['004010', '华泰柏瑞鼎利灵活配置混合A'],
-  ['009644', '东方阿尔法优势产业混合A'],
-  ['501312', '华宝海外科技股票(QDII-FOF-LOF)A'],
-  ['217017', '招商上证消费80ETF联接A'],
-  ['012414', '招商中证白酒指数C'],
-  ['002611', '博时黄金ETF联接C'],
-  ['166002', '中欧新蓝筹灵活配置混合A'],
-  ['003095', '中欧医疗健康混合A'],
-  ['020483', '中欧中证芯片产业指数C'],
-  ['021200', '华夏中证装备产业ETF联接A'],
-  ['008088', '华夏房地产ETF联接A'],
-  ['019431', '永赢睿信混合A'],
-  ['018075', '长盛航天海工装备灵活配置混合C'],
-  ['018167', '国泰有色金属矿业ETF联接A'],
-  ['013841', '银华集成电路混合C'],
-]
-
 /**
- * 场内 ETF：真实代码 + 东方财富 secid。
- * aliases 用于兼容看板种子里的旧占位代码。
+ * 读取仓库根目录的 symbols.json。
+ * 任何格式问题都在抓取前直接报错，避免静默产出空数据。
  */
-const ETFS = [
-  {
-    symbol: '159612',
-    name: '标普500ETF国泰',
-    secid: '0.159612',
-    aliases: ['ETF-SP500'],
-  },
-  {
-    symbol: '159766',
-    name: '旅游ETF富国',
-    secid: '0.159766',
-    aliases: ['ETF-TOUR'],
-  },
-]
+function loadSymbols() {
+  if (!existsSync(SYMBOL_FILE)) {
+    throw new Error(`找不到 ${SYMBOL_FILE}，请把 symbols.json 放在仓库根目录`)
+  }
 
-/** 基准：沪深 300ETF，只用于收益趋势对比，不参与持仓匹配 */
-const BENCHMARKS = [
-  {
-    symbol: '510300',
-    name: '沪深300ETF华泰柏瑞',
-    secid: '1.510300',
-    benchmark: true,
-  },
-]
+  let raw
+  try {
+    raw = readFileSync(SYMBOL_FILE, 'utf8')
+  } catch (error) {
+    throw new Error(`无法读取 symbols.json：${error.message}`)
+  }
+
+  let parsed
+  try {
+    parsed = JSON.parse(raw)
+  } catch (error) {
+    throw new Error(`symbols.json 不是合法 JSON：${error.message}`)
+  }
+
+  if (!Array.isArray(parsed)) throw new Error('symbols.json 顶层必须是数组')
+  if (parsed.length === 0) throw new Error('symbols.json 不能为空数组')
+
+  const seen = new Set()
+  const aliasSeen = new Map()
+
+  return parsed.map((entry, index) => {
+    const where = `第 ${index + 1} 项`
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+      throw new Error(`${where} 必须是对象`)
+    }
+
+    const symbol = typeof entry.symbol === 'string' ? entry.symbol.trim() : ''
+    if (!/^\d{6}$/.test(symbol)) {
+      throw new Error(`${where} 的代码格式不对：${symbol || '空'}（需要 6 位数字）`)
+    }
+    if (seen.has(symbol)) throw new Error(`代码 ${symbol} 重复出现`)
+    seen.add(symbol)
+
+    if (entry.type !== 'fund' && entry.type !== 'etf') {
+      throw new Error(`${where}（${symbol}）的 type 必须是 "fund" 或 "etf"`)
+    }
+
+    const name = typeof entry.name === 'string' ? entry.name.trim() : ''
+    if (!name) throw new Error(`${where}（${symbol}）缺少 name`)
+
+    const market =
+      typeof entry.market === 'string' && entry.market.trim()
+        ? entry.market.trim()
+        : entry.type === 'fund'
+          ? '场外基金'
+          : 'A股ETF'
+
+    let aliases
+    if (entry.aliases !== undefined) {
+      if (
+        !Array.isArray(entry.aliases) ||
+        entry.aliases.some((alias) => typeof alias !== 'string' || !alias.trim())
+      ) {
+        throw new Error(`${where}（${symbol}）的 aliases 必须是非空字符串数组`)
+      }
+      aliases = entry.aliases.map((alias) => alias.trim())
+      for (const alias of aliases) {
+        const owner = aliasSeen.get(alias)
+        if (owner && owner !== symbol) {
+          throw new Error(`别名 ${alias} 同时属于 ${owner} 和 ${symbol}`)
+        }
+        aliasSeen.set(alias, symbol)
+      }
+    }
+
+    let secid
+    if (entry.type === 'etf') {
+      if (entry.secid !== undefined) {
+        if (typeof entry.secid !== 'string' || !/^[01]\.\d{6}$/.test(entry.secid)) {
+          throw new Error(
+            `${where}（${symbol}）的 secid 格式不对：${String(entry.secid)}（示例 "0.159612" / "1.510300"）`,
+          )
+        }
+        secid = entry.secid
+      } else {
+        // 未填 secid 时按代码首位推断：5/6 开头为沪市，其余为深市
+        secid = `${/^[56]/.test(symbol) ? '1' : '0'}.${symbol}`
+      }
+    }
+
+    if (entry.benchmark !== undefined && typeof entry.benchmark !== 'boolean') {
+      throw new Error(`${where}（${symbol}）的 benchmark 必须是 true 或 false`)
+    }
+
+    return {
+      symbol,
+      name,
+      type: entry.type,
+      market,
+      aliases,
+      secid,
+      benchmark: entry.benchmark === true,
+    }
+  })
+}
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -146,12 +194,16 @@ function round(value, digits = 4) {
   return Math.round(value * factor) / factor
 }
 
-async function fetchFund([symbol, name]) {
+async function fetchFund(target) {
+  const { symbol, name, market } = target
   const url = `https://api.fund.eastmoney.com/f10/lsjz?fundCode=${symbol}&pageIndex=1&pageSize=2`
   const data = await fetchJson(url, { Referer: 'https://fundf10.eastmoney.com/' })
   const list = data?.Data?.LSJZList
   const latest = Array.isArray(list) ? list[0] : null
-  if (!latest) throw new Error('没有返回净值记录')
+  if (!latest) {
+    const hint = data?.ErrCode || data?.ErrMsg ? `（接口返回 ${data.ErrCode ?? ''} ${data.ErrMsg ?? ''}）` : ''
+    throw new Error(`代码 ${symbol} 没有净值记录，可能不存在或已停售${hint}`)
+  }
 
   const date = String(latest.FSRQ ?? '')
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error(`净值日期异常：${date || '空'}`)
@@ -169,7 +221,7 @@ async function fetchFund([symbol, name]) {
     symbol,
     name,
     instrument: 'otc-fund',
-    market: '场外基金',
+    market: market || '场外基金',
     date,
     price: round(price, 4),
     changePct: round(changePct, 4),
@@ -181,7 +233,9 @@ async function fetchEtf(target) {
   const url = `https://push2.eastmoney.com/api/qt/stock/get?secid=${target.secid}&fields=f43,f57,f58,f59,f60,f86,f170`
   const data = await fetchJson(url)
   const quote = data?.data
-  if (!quote) throw new Error('没有返回行情数据')
+  if (!quote || quote.f43 === undefined || quote.f43 === null) {
+    throw new Error(`代码 ${target.symbol} 没有行情数据（secid ${target.secid}），可能不存在或已退市`)
+  }
 
   const decimals = Number.isFinite(Number(quote.f59)) ? Number(quote.f59) : 2
   const scale = 10 ** decimals
@@ -201,7 +255,7 @@ async function fetchEtf(target) {
     symbol: target.symbol,
     name: target.name,
     instrument: 'etf',
-    market: 'A股ETF',
+    market: target.market || 'A股ETF',
     aliases: target.aliases,
     benchmark: target.benchmark === true,
     date,
@@ -245,21 +299,27 @@ function writeJson(path, value) {
 }
 
 async function main() {
-  const tasks = [
-    ...OTC_FUNDS.map((fund) => ({ kind: 'fund', fund })),
-    ...ETFS.map((etf) => ({ kind: 'etf', etf })),
-    ...BENCHMARKS.map((etf) => ({ kind: 'etf', etf })),
-  ]
+  // 清单有问题时在抓取前就报错，避免静默产出空数据
+  let symbols
+  try {
+    symbols = loadSymbols()
+  } catch (error) {
+    console.error(`symbols.json 配置错误：${error instanceof Error ? error.message : String(error)}`)
+    process.exitCode = 1
+    return
+  }
+  const tasks = symbols.map((target) => ({ kind: target.type, target }))
 
   const results = await mapLimit(tasks, CONCURRENCY, async (task) => {
-    const label = task.kind === 'fund' ? task.fund[0] : task.etf.symbol
+    const label = task.target.symbol
     try {
-      const item = task.kind === 'fund' ? await fetchFund(task.fund) : await fetchEtf(task.etf)
+      const item = task.kind === 'fund' ? await fetchFund(task.target) : await fetchEtf(task.target)
       return { ok: true, item }
     } catch (error) {
       return {
         ok: false,
         symbol: label,
+        name: task.target.name,
         error: error instanceof Error ? error.message : String(error),
       }
     }
@@ -269,8 +329,9 @@ async function main() {
   const failed = results.filter((r) => !r.ok)
 
   if (failed.length > 0) {
-    console.warn(`失败 ${failed.length} 个标的：`)
-    for (const item of failed) console.warn(`- ${item.symbol}: ${item.error}`)
+    console.warn(`失败 ${failed.length} 个标的（已跳过，其余继续）：`)
+    for (const item of failed) console.warn(`- ${item.symbol} ${item.name}: ${item.error}`)
+    console.warn('如果代码是新加的，请检查 symbols.json 中的代码是否正确后重试')
   }
 
   if (succeeded.length === 0) {
@@ -280,7 +341,7 @@ async function main() {
   }
 
   const generatedAt = new Date().toISOString()
-  const universe = new Set(tasks.map((task) => (task.kind === 'fund' ? task.fund[0] : task.etf.symbol)))
+  const universe = new Set(symbols.map((s) => s.symbol))
 
   const latestPath = join(DATA_DIR, 'latest.json')
   const previous = readJson(latestPath)
